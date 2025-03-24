@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:project_flutter/screens/orders_screen.dart';
-import '../widgets/bottom_navbar.dart';
 import './withdrawal_screen.dart';
-import './profile_screen.dart';
 
 class PaymentScreen extends StatelessWidget {
   const PaymentScreen({super.key});
@@ -55,7 +52,7 @@ class PaymentScreen extends StatelessWidget {
         children: [
           Text(
             '₹ 12,450',
-            style: GoogleFonts.lato(
+            style: GoogleFonts.inter(
               fontSize: 36,
               fontWeight: FontWeight.bold,
               color: Colors.white,
@@ -64,7 +61,7 @@ class PaymentScreen extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             'Total Earnings',
-            style: GoogleFonts.lato(fontSize: 16, color: Colors.white70),
+            style: GoogleFonts.inter(fontSize: 16, color: Colors.white70),
           ),
           const SizedBox(height: 24),
           Row(
@@ -90,12 +87,12 @@ class PaymentScreen extends StatelessWidget {
         children: [
           Text(
             title,
-            style: GoogleFonts.lato(fontSize: 14, color: Colors.white70),
+            style: GoogleFonts.inter(fontSize: 14, color: Colors.white70),
           ),
           const SizedBox(height: 8),
           Text(
             amount,
-            style: GoogleFonts.lato(
+            style: GoogleFonts.inter(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: Colors.white,
@@ -104,7 +101,7 @@ class PaymentScreen extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             deliveries,
-            style: GoogleFonts.lato(fontSize: 12, color: Colors.white70),
+            style: GoogleFonts.inter(fontSize: 12, color: Colors.white70),
           ),
         ],
       ),
@@ -119,7 +116,7 @@ class PaymentScreen extends StatelessWidget {
         children: [
           Text(
             'Recent Transactions',
-            style: GoogleFonts.lato(
+            style: GoogleFonts.inter(
               fontSize: 20,
               fontWeight: FontWeight.bold,
               color: Colors.grey[800],
@@ -197,7 +194,7 @@ class PaymentScreen extends StatelessWidget {
               children: [
                 Text(
                   'Order $orderNumber',
-                  style: GoogleFonts.lato(
+                  style: GoogleFonts.inter(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                   ),
@@ -205,7 +202,7 @@ class PaymentScreen extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   '$date at $time',
-                  style: GoogleFonts.lato(
+                  style: GoogleFonts.inter(
                     color: Colors.grey[600],
                     fontSize: 14,
                   ),
@@ -218,7 +215,7 @@ class PaymentScreen extends StatelessWidget {
             children: [
               Text(
                 amount,
-                style: GoogleFonts.lato(
+                style: GoogleFonts.inter(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                   color: const Color(0xFFFF4B3A),
@@ -236,7 +233,7 @@ class PaymentScreen extends StatelessWidget {
                 ),
                 child: Text(
                   type,
-                  style: GoogleFonts.lato(
+                  style: GoogleFonts.inter(
                     color: type == 'Cash' ? Colors.green : Colors.blue,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
@@ -290,7 +287,7 @@ class PaymentScreen extends StatelessWidget {
                   ),
                   child: Text(
                     'Withdraw Payout',
-                    style: GoogleFonts.lato(
+                    style: GoogleFonts.inter(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.w600,

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:project_flutter/screens/opening_screen.dart';
+import 'package:project_flutter/screens/orders_screen.dart';
 import 'package:project_flutter/screens/payment_screen.dart';
 import 'package:project_flutter/screens/profile_screen.dart';
-//import 'screens/opening_screen.dart';
-// import 'screens/otp_verification.dart';
-import 'widgets/bottom_navbar.dart';
-import 'screens/orders_screen.dart';
+import 'package:project_flutter/widgets/bottom_navbar.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,22 +18,26 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'DeliGo',
       theme: ThemeData(primarySwatch: Colors.orange),
-      home: const MyHomePage(),
+      home: const OpeningScreen(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _MainScreenState createState() => _MainScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  final List<Widget> _screens = const [OrdersScreen(),PaymentScreen(),ProfileScreen()];
+  final List<Widget> _screens = const [
+    OrdersScreen(),
+    PaymentScreen(),
+    ProfileScreen(),
+  ];
 
   void _onItemTapped(int index) {
     setState(() {
