@@ -44,16 +44,12 @@ class PaymentScreen extends StatelessWidget {
           if (currentIndex == 0) {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const OrdersScreen(),
-              ),
+              MaterialPageRoute(builder: (context) => const OrdersScreen()),
             );
           } else if (currentIndex == 2) {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const ProfileScreen(),
-              ),
+              MaterialPageRoute(builder: (context) => const ProfileScreen()),
             );
           }
         },

@@ -8,7 +8,7 @@ import 'package:project_flutter/screens/profile_screen.dart';
 import 'widgets/bottom_navbar.dart';
 import 'screens/orders_screen.dart';
 import 'screens/opening_screen.dart';
-
+// safil//
 void main() {
   runApp(const MyApp());
 }

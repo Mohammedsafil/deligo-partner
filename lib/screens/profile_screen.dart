@@ -57,16 +57,12 @@ class ProfileScreen extends StatelessWidget {
           if (currentIndex == 1) {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const PaymentScreen(),
-              ),
+              MaterialPageRoute(builder: (context) => const PaymentScreen()),
             );
           } else if (currentIndex == 0) {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const OrdersScreen(),
-              ),
+              MaterialPageRoute(builder: (context) => const OrdersScreen()),
             );
           }
         },
@@ -399,11 +395,10 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 16),
           Row(
             children: [
-              const SizedBox(width: 45),
               _buildFAQSection(),
-              const SizedBox(width: 45),
+              const SizedBox(width: 40),
               _buildHelpSection(),
-              const SizedBox(width: 45),
+              const SizedBox(width: 40),
               _buildSOSSection(),
             ],
           ),
