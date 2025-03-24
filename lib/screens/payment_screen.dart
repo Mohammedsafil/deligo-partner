@@ -38,6 +38,26 @@ class PaymentScreen extends StatelessWidget {
           children: [_buildEarningsSummary(), _buildTransactionsList()],
         ),
       ),
+      bottomNavigationBar: BottomNavBar(
+        currentIndex: 1,
+        onTap: (currentIndex) {
+          if (currentIndex == 0) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const OrdersScreen(),
+              ),
+            );
+          } else if (currentIndex == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ProfileScreen(),
+              ),
+            );
+          }
+        },
+      ),
     );
   }
 

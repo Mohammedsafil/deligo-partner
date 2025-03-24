@@ -3,6 +3,8 @@ import "package:intl/intl.dart";
 import "package:google_fonts/google_fonts.dart";
 import "package:project_flutter/models/order.dart";
 import "package:project_flutter/widgets/bottom_navbar.dart";
+import "./profile_screen.dart";
+import "./payment_screen.dart";
 
 class OrderDetailsScreen extends StatefulWidget {
   const OrderDetailsScreen({
@@ -18,11 +20,6 @@ class OrderDetailsScreen extends StatefulWidget {
 
 class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   int _selectedIndex = 0;
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -334,7 +331,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                         widget.onAcceptOrder(widget.order.id, "active");
                         Navigator.pop(context);
                       },
-                      child:  Text(
+                      child: Text(
                         'Accept',
                         style: GoogleFonts.inter(
                           color: Colors.white,
@@ -373,11 +370,23 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             ],
           ),
           const Spacer(),
-          BottomNavBar(
-            currentIndex: _selectedIndex,
-            onTap: _onItemTapped,
-          ),
         ],
+      ),
+      bottomNavigationBar: BottomNavBar(
+        currentIndex: 0,
+        onTap: (currentIndex) {
+          if (currentIndex == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const PaymentScreen()),
+            );
+          } else if (currentIndex == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ProfileScreen()),
+            );
+          }
+        },
       ),
     );
   }
