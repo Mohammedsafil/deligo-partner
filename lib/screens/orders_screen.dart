@@ -2,6 +2,9 @@ import "package:flutter/material.dart";
 import "package:google_fonts/google_fonts.dart";
 import "/widgets/order_card.dart";
 import "/models/order.dart";
+import "../widgets/bottom_navbar.dart";
+import "./payment_screen.dart";
+import "./profile_screen.dart";
 
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});
@@ -187,6 +190,22 @@ class _OrdersScreenState extends State<OrdersScreen> {
             ),
           ),
         ],
+      ),
+      bottomNavigationBar: BottomNavBar(
+        currentIndex: 0,
+        onTap: (currentIndex) {
+          if (currentIndex == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const PaymentScreen()),
+            );
+          } else if (currentIndex == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ProfileScreen()),
+            );
+          }
+        },
       ),
     );
   }

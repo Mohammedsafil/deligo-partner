@@ -1,10 +1,14 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:project_flutter/screens/opening_screen.dart';
-import 'package:project_flutter/screens/orders_screen.dart';
 import 'package:project_flutter/screens/payment_screen.dart';
 import 'package:project_flutter/screens/profile_screen.dart';
-import 'package:project_flutter/widgets/bottom_navbar.dart';
-
+//import 'screens/opening_screen.dart';
+// import 'screens/otp_verification.dart';
+import 'widgets/bottom_navbar.dart';
+import 'screens/orders_screen.dart';
+import 'screens/opening_screen.dart';
+// safil//
 void main() {
   runApp(const MyApp());
 }
@@ -18,20 +22,19 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'DeliGo',
       theme: ThemeData(primarySwatch: Colors.orange),
-      home: const OpeningScreen(),
+      home: const MyHomePage(),
     );
   }
 }
 
-class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
 
   @override
-  _MainScreenState createState() => _MainScreenState();
+  _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 0;
+class _MyHomePageState extends State<MyHomePage> {
 
   final List<Widget> _screens = const [
     OrdersScreen(),
@@ -39,20 +42,10 @@ class _MainScreenState extends State<MainScreen> {
     ProfileScreen(),
   ];
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_selectedIndex],
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-      ),
+      body: const OpeningScreen(),
     );
   }
 }

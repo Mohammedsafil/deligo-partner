@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../widgets/bottom_navbar.dart';
+import './payment_screen.dart';
+import './orders_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -41,11 +44,28 @@ class ProfileScreen extends StatelessWidget {
                   _buildVehicleInfo(),
                   const SizedBox(height: 30),
                   _buildSupportSection(),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: BottomNavBar(
+        currentIndex: 2,
+        onTap: (currentIndex) {
+          if (currentIndex == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const PaymentScreen()),
+            );
+          } else if (currentIndex == 0) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const OrdersScreen()),
+            );
+          }
+        },
       ),
     );
   }
@@ -375,11 +395,10 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 16),
           Row(
             children: [
-              const SizedBox(width: 45),
               _buildFAQSection(),
-              const SizedBox(width: 45),
+              const SizedBox(width: 40),
               _buildHelpSection(),
-              const SizedBox(width: 45),
+              const SizedBox(width: 40),
               _buildSOSSection(),
             ],
           ),
