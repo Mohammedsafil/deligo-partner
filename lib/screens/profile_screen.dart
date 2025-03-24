@@ -49,19 +49,6 @@ class ProfileScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: 2,
-        onTap: (index) {
-          if (index == 1) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => PaymentScreen()),
-            );
-          } else if (index == 0) {
-            print("home");
-          }
-        },
-      ),
     );
   }
 

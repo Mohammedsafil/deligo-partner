@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:project_flutter/screens/orders_screen.dart';
 import '../widgets/bottom_navbar.dart';
 import './withdrawal_screen.dart';
 import './profile_screen.dart';
@@ -36,19 +37,6 @@ class PaymentScreen extends StatelessWidget {
         child: Column(
           children: [_buildEarningsSummary(), _buildTransactionsList()],
         ),
-      ),
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: 1,
-        onTap: (index) {
-          if (index == 0) {
-            print("home");
-          } else if (index == 2) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ProfileScreen()),
-            );
-          }
-        },
       ),
     );
   }

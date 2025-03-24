@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:project_flutter/screens/orders_screen.dart';
 import '../widgets/bottom_navbar.dart';
 // import './home_screen.dart';
 import './profile_screen.dart';
@@ -589,11 +590,10 @@ class _WithdrawalScreenState extends State<WithdrawalScreen> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.pop(context); // Dismiss dialog
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const ProfileScreen(),
+                            builder: (context) => const OrdersScreen(),
                           ),
                         );
                       },
