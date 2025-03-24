@@ -1,3 +1,5 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:project_flutter/screens/payment_screen.dart';
 import 'package:project_flutter/screens/profile_screen.dart';
@@ -5,6 +7,7 @@ import 'package:project_flutter/screens/profile_screen.dart';
 // import 'screens/otp_verification.dart';
 import 'widgets/bottom_navbar.dart';
 import 'screens/orders_screen.dart';
+import 'screens/opening_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -32,24 +35,17 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _selectedIndex = 0;
 
-  final List<Widget> _screens = const [OrdersScreen(),PaymentScreen(),ProfileScreen()];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
+  final List<Widget> _screens = const [
+    OrdersScreen(),
+    PaymentScreen(),
+    ProfileScreen(),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_selectedIndex],
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-      ),
+      body: const OpeningScreen(),
     );
   }
 }

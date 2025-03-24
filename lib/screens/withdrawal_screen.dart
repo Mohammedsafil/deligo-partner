@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:project_flutter/screens/orders_screen.dart';
 import '../widgets/bottom_navbar.dart';
-// import './home_screen.dart';
 import './profile_screen.dart';
 
 class WithdrawalScreen extends StatefulWidget {
@@ -82,7 +81,10 @@ class _WithdrawalScreenState extends State<WithdrawalScreen> {
         currentIndex: 1,
         onTap: (index) {
           if (index == 0) {
-            print("home");
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const OrdersScreen()),
+            );
           } else if (index == 2) {
             Navigator.push(
               context,
@@ -590,7 +592,7 @@ class _WithdrawalScreenState extends State<WithdrawalScreen> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.pushReplacement(
+                        Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => const OrdersScreen(),
