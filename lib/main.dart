@@ -1,30 +1,16 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:project_flutter/screens/opening_screen.dart';
-import 'package:project_flutter/screens/orders_screen.dart';
-import 'package:project_flutter/screens/payment_screen.dart';
-import 'package:project_flutter/screens/profile_screen.dart';
-import 'package:project_flutter/widgets/bottom_navbar.dart';
-import 'package:project_flutter/firebase_options.dart';
+import 'screens/payment_screen.dart';
+import 'screens/profile_screen.dart';
+import 'widgets/bottom_navbar.dart';
+import 'screens/orders_screen.dart';
+import 'screens/opening_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-  // Request Location Permission
-  await _requestLocationPermission();
-
   runApp(const MyApp());
-}
-
-Future<void> _requestLocationPermission() async {
-  LocationPermission permission = await Geolocator.checkPermission();
-  if (permission == LocationPermission.denied) {
-    permission = await Geolocator.requestPermission();
-  }
 }
 
 class MyApp extends StatelessWidget {
@@ -36,64 +22,27 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'DeliGo',
       theme: ThemeData(primarySwatch: Colors.orange),
-      home: const MainScreen(), // Start with MainScreen
+      home: const MyHomePage(),
     );
   }
 }
 
-class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
 
   @override
-  _MainScreenState createState() => _MainScreenState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 0;
-  String _currentLocation = "Fetching location...";
-
+class _MyHomePageState extends State<MyHomePage> {
   final List<Widget> _screens = [
-    OrdersScreen(),
-    PaymentScreen(),
+    const OrdersScreen(),
+    const PaymentScreen(),
     ProfileScreen(),
   ];
 
   @override
-  void initState() {
-    super.initState();
-    _getCurrentLocation();
-  }
-
-  Future<void> _getCurrentLocation() async {
-    try {
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-      setState(() {
-        _currentLocation =
-            "Lat: \${position.latitude}, Lng: \${position.longitude}";
-      });
-    } catch (e) {
-      setState(() {
-        _currentLocation = "Location not available";
-      });
-    }
-  }
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _screens[_selectedIndex],
-      bottomNavigationBar: BottomNavBar(
-        selectedIndex: _selectedIndex,
-        onItemTapped: _onItemTapped,
-      ),
-    );
+    return const Scaffold(body: OpeningScreen());
   }
 }
