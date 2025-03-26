@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'orders_screen.dart';
-import 'package:project_flutter/main.dart';
-import 'package:project_flutter/screens/orders_screen.dart';
 
 class OpeningScreen extends StatelessWidget {
   const OpeningScreen({super.key});

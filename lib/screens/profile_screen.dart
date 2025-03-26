@@ -3,78 +3,175 @@ import 'package:google_fonts/google_fonts.dart';
 import '../widgets/bottom_navbar.dart';
 import './payment_screen.dart';
 import './orders_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../models/partner_profile.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
+  final String partnerId = "partnerId1";
+
   const ProfileScreen({super.key});
 
   @override
+  _ProfileScreenState createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  late Stream<DocumentSnapshot> _profileStream;
+  final FirestoreService _firestoreService = FirestoreService();
+
+  @override
+  void initState() {
+    super.initState();
+    _profileStream = _firestoreService.getProfileStream(widget.partnerId);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Profile',
-          style: GoogleFonts.pacifico(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: const Color(0xFFFF4B3A),
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit, color: Colors.white),
-            onPressed: () {
-              // TODO: Implement edit profile
-            },
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(24),
+    return StreamBuilder<DocumentSnapshot>(
+      stream: _profileStream,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(
+            child: Text(
+              'Error: ${snapshot.error}',
+              style: const TextStyle(color: Colors.red),
+            ),
+          );
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (!snapshot.hasData || !snapshot.data!.exists) {
+          return Scaffold(
+            body: Center(
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 10),
-                  _buildProfileSection(),
-                  const SizedBox(height: 30),
-                  _buildDeliveryStats(),
-                  const SizedBox(height: 30),
-                  _buildVehicleInfo(),
-                  const SizedBox(height: 30),
-                  _buildSupportSection(),
-                  const SizedBox(height: 20),
+                  const Text('Profile not found'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Create a sample profile for testing
+                      _firestoreService.createProfile(
+                        widget.partnerId,
+                        'John Doe',
+                        '+91 9876543210',
+                        156,
+                        4.8,
+                        95.0,
+                        'Duke 350',
+                        'TN 01 AB 1234',
+                        'DL98765432109876',
+                      );
+                    },
+                    child: const Text('Create Sample Profile'),
+                  ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: 2,
-        onTap: (currentIndex) {
-          if (currentIndex == 1) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const PaymentScreen(),
+          );
+        }
+
+        try {
+          final profileData = snapshot.data!.data() as Map<String, dynamic>;
+          // print(profileData.values);
+          print(profileData['name']);
+          // print(profileData['delivery_statistics']);
+          // print(profileData['vehicle']);
+          final deliveryStats =
+              profileData['delivery_statistics'] as Map<String, dynamic>? ?? {};
+          final vehicleInfo =
+              profileData['vehicle'] as Map<String, dynamic>? ?? {};
+
+          print(vehicleInfo['bike_name']);
+          print(vehicleInfo['license']);
+          print(vehicleInfo['number_plate']);
+          print(deliveryStats['deliveries']);
+          print(deliveryStats['on_time_percentage']);
+          print(deliveryStats['rating']);
+
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(
+                'Profile',
+                style: GoogleFonts.pacifico(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            );
-          } else if (currentIndex == 0) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const OrdersScreen(),
+              backgroundColor: const Color(0xFFFF4B3A),
+              elevation: 0,
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.white),
+                  onPressed: () {
+                    // TODO: Implement edit profile
+                  },
+                ),
+              ],
+            ),
+            body: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 10),
+                        _buildProfileSection(profileData),
+                        const SizedBox(height: 30),
+                        _buildDeliveryStats(deliveryStats),
+                        const SizedBox(height: 30),
+                        _buildVehicleInfo(vehicleInfo),
+                        const SizedBox(height: 30),
+                        _buildSupportSection(),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            );
-          }
-        },
-      ),
+            ),
+            bottomNavigationBar: BottomNavBar(
+              currentIndex: 2,
+              onTap: (currentIndex) {
+                if (currentIndex == 1) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PaymentScreen(),
+                    ),
+                  );
+                } else if (currentIndex == 0) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const OrdersScreen(),
+                    ),
+                  );
+                }
+              },
+            ),
+          );
+        } catch (e) {
+          return Scaffold(
+            body: Center(
+              child: Text(
+                'Error parsing profile data: $e',
+                style: const TextStyle(color: Colors.red),
+              ),
+            ),
+          );
+        }
+      },
     );
   }
 
-  Widget _buildProfileSection() {
+  Widget _buildProfileSection(Map<String, dynamic> profileData) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -123,7 +220,8 @@ class ProfileScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Md Safil',
+                      profileData['name'],
+                      // 'John Doe',
                       style: GoogleFonts.lato(
                         fontSize: 24,
                         color: Colors.white,
@@ -132,7 +230,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'ID: 11118008',
+                      'ID: ${profileData['id']}',
                       style: GoogleFonts.lato(
                         fontSize: 16,
                         color: Colors.white70,
@@ -148,7 +246,8 @@ class ProfileScreen extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          '+91 9789378657',
+                          profileData['mobile_no'],
+                          // '1234567890',
                           style: GoogleFonts.lato(
                             color: Colors.white,
                             fontSize: 14,
@@ -166,7 +265,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDeliveryStats() {
+  Widget _buildDeliveryStats(Map<String, dynamic> deliveryStats) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -196,9 +295,18 @@ class ProfileScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildStatItem('156', 'Deliveries'),
-              _buildStatItem('4.8 ⭐', 'Rating'),
-              _buildStatItem('95%', 'On-time'),
+              _buildStatItem(
+                deliveryStats['deliveries']?.toString() ?? '0',
+                'Deliveries',
+              ),
+              _buildStatItem(
+                deliveryStats['rating']?.toString() ?? '0',
+                'Rating',
+              ),
+              _buildStatItem(
+                deliveryStats['on_time_percentage']?.toString() ?? '0',
+                'On-time',
+              ),
             ],
           ),
         ],
@@ -207,26 +315,48 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildStatItem(String value, String label) {
+    IconData? icon;
+    String displayValue = value;
+
+    // Determine icon and format value based on label
+    if (label == 'Rating') {
+      icon = Icons.star;
+    } else if (label == 'On-time') {
+      icon = Icons.timer;
+      displayValue = '$value%';
+    } else if (label == 'Deliveries') {
+      icon = Icons.delivery_dining;
+    }
+
     return Column(
       children: [
-        Text(
-          value,
-          style: GoogleFonts.lato(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: const Color(0xFFFF4B3A),
-          ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, color: const Color(0xFFFF4B3A), size: 20),
+              const SizedBox(width: 4),
+            ],
+            Text(
+              displayValue,
+              style: GoogleFonts.lato(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 4),
         Text(
           label,
-          style: GoogleFonts.lato(fontSize: 14, color: Colors.grey[600]),
+          style: GoogleFonts.lato(fontSize: 14, color: Colors.black54),
         ),
       ],
     );
   }
 
-  Widget _buildVehicleInfo() {
+  Widget _buildVehicleInfo(Map<String, dynamic> vehicleInfo) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -253,9 +383,18 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          _buildVehicleInfoItem(Icons.two_wheeler, 'Duke 350'),
-          _buildVehicleInfoItem(Icons.numbers, 'TN 01 AB 1234'),
-          _buildVehicleInfoItem(Icons.badge, 'DL98765432109876'),
+          _buildVehicleInfoItem(
+            Icons.two_wheeler,
+            vehicleInfo['bike_name'] ?? '',
+          ),
+          _buildVehicleInfoItem(
+            Icons.numbers,
+            vehicleInfo['license'].toString() ?? '',
+          ),
+          _buildVehicleInfoItem(
+            Icons.badge,
+            vehicleInfo['number_plate'].toString() ?? '',
+          ),
         ],
       ),
     );
@@ -399,11 +538,10 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 16),
           Row(
             children: [
-              const SizedBox(width: 45),
               _buildFAQSection(),
-              const SizedBox(width: 45),
+              const SizedBox(width: 40),
               _buildHelpSection(),
-              const SizedBox(width: 45),
+              const SizedBox(width: 40),
               _buildSOSSection(),
             ],
           ),

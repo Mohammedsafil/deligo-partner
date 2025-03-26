@@ -187,7 +187,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   ],
                 ),
               ),
-
             ),
           ),
         ],
@@ -198,16 +197,12 @@ class _OrdersScreenState extends State<OrdersScreen> {
           if (currentIndex == 1) {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const PaymentScreen(),
-              ),
+              MaterialPageRoute(builder: (context) => const PaymentScreen()),
             );
           } else if (currentIndex == 2) {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const ProfileScreen(),
-              ),
+              MaterialPageRoute(builder: (context) => ProfileScreen()),
             );
           }
         },
