@@ -62,7 +62,7 @@ class ProfileScreen extends StatelessWidget {
           } else if (currentIndex == 0) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const OrdersScreen()),
+              MaterialPageRoute(builder: (context) => OrdersScreen()),
             );
           }
         },

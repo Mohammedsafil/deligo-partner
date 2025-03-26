@@ -44,14 +44,13 @@ class OpeningScreen extends StatelessWidget {
                 onPressed: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const OrdersScreen(),
-                    ),
+                    MaterialPageRoute(builder: (context) => const MainScreen()),
                   );
                 },
+
                 child: Text(
                   'Get Started',
-                  style: GoogleFonts.lato(
+                  style: GoogleFonts.inter(
                     fontSize: 18,
                     color: Color(0xFFFF460A),
                   ),

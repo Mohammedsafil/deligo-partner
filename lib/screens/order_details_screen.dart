@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "package:intl/intl.dart";
 import "package:google_fonts/google_fonts.dart";
 import "package:project_flutter/models/order.dart";
+import "package:project_flutter/screens/map_screen.dart";
 import "package:project_flutter/widgets/bottom_navbar.dart";
 import "./profile_screen.dart";
 import "./payment_screen.dart";
@@ -147,14 +148,14 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            '${item.name}',
+                                            '${item['item']}',
                                             style: GoogleFonts.inter(
                                               fontSize: 14,
                                               color: Colors.black,
                                             ),
                                           ),
                                           Text(
-                                            'Quantity: ${item.quantity}',
+                                            'Quantity: ${item['quantity']}',
                                             style: GoogleFonts.inter(
                                               fontSize: 14,
                                               color: Colors.grey,
@@ -275,7 +276,37 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                               ),
                             ),
                             child: IconButton(
-                              onPressed: null,
+                              onPressed: () {
+                                try {
+                                  List<String> coordinates = widget
+                                      .order
+                                      .deliveryLocation
+                                      .split(', ');
+                                  double latitude = double.parse(
+                                    coordinates[0],
+                                  );
+                                  double longitude = double.parse(
+                                    coordinates[1],
+                                  );
+
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => MapScreen(
+                                            latitude: latitude,
+                                            longitude: longitude,
+                                          ),
+                                    ),
+                                  );
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("Invalid location format"),
+                                    ),
+                                  );
+                                }
+                              },
                               icon: Icon(
                                 Icons.location_pin,
                                 color: Colors.white,
@@ -311,7 +342,9 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                           const BorderSide(color: Color(0xFFFF460A), width: 2),
                         ),
                       ),
-                      onPressed: null,
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
                       child: Text(
                         'Decline',
                         style: GoogleFonts.inter(
