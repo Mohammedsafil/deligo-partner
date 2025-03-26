@@ -22,6 +22,7 @@ dependencies:
   latlong2: ^0.9.1
   ola_maps: ^0.0.2
 
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

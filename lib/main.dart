@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'DeliGo',
       theme: ThemeData(primarySwatch: Colors.orange),
-      home: const OpeningScreen(), // Start with Opening Screen
+      home: const MainScreen(), // Start with MainScreen
     );
   }
 }
@@ -71,7 +71,7 @@ class _MainScreenState extends State<MainScreen> {
       );
       setState(() {
         _currentLocation =
-            "Lat: ${position.latitude}, Lng: ${position.longitude}";
+            "Lat: \${position.latitude}, Lng: \${position.longitude}";
       });
     } catch (e) {
       setState(() {
@@ -88,6 +88,12 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: _screens[_selectedIndex]);
+    return Scaffold(
+      body: _screens[_selectedIndex],
+      bottomNavigationBar: BottomNavBar(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
+      ),
+    );
   }
 }
