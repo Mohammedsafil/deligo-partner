@@ -383,7 +383,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
           } else if (currentIndex == 2) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              MaterialPageRoute(builder: (context) => ProfileScreen()),
             );
           }
         },
