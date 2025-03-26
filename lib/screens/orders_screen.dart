@@ -1,105 +1,20 @@
-import "package:cloud_firestore/cloud_firestore.dart";
-import "package:firebase_core/firebase_core.dart";
 import "package:flutter/material.dart";
-import "package:geocoding/geocoding.dart";
-import "package:geolocator/geolocator.dart";
 import "package:google_fonts/google_fonts.dart";
 import "/widgets/order_card.dart";
-import "/models/order.dart" as myOrder;
+import "/models/order.dart";
 import "../widgets/bottom_navbar.dart";
 import "./payment_screen.dart";
 import "./profile_screen.dart";
 
 class OrdersScreen extends StatefulWidget {
-  OrdersScreen({super.key});
+  const OrdersScreen({super.key});
 
   @override
   _OrdersScreenState createState() => _OrdersScreenState();
 }
 
 class _OrdersScreenState extends State<OrdersScreen> {
-  List<myOrder.Order> orders = [];
-  String currentLocation = "Fetching location...";
-
-  @override
-  void initState() {
-    super.initState();
-    _getCurrentLocation();
-    fetchItemsFromFirestore();
-  }
-
-  Future<void> fetchItemsFromFirestore() async {
-    try {
-      FirebaseFirestore firestore = FirebaseFirestore.instance;
-      QuerySnapshot snapshot = await firestore.collection('Orders').get();
-
-      List<myOrder.Order> fetchedOrders =
-          snapshot.docs.map((doc) {
-            var data = doc.data() as Map<String, dynamic>;
-            return myOrder.Order(
-              id: data['orderId'],
-              customerName: data['customerName'],
-              delivery: data['deliveryType'],
-              orderDate: (data['orderDate'] as Timestamp).toDate(),
-              orderedItems: List<Map<String, dynamic>>.from(
-                (data['orderedItems'] as List).map(
-                  (item) => Map<String, dynamic>.from(item),
-                ),
-              ),
-              subTotal: (data['subtotal'] as num).toDouble(),
-              deliveryCost: (data['deliveryCost'] as num).toDouble(),
-              totalCost: (data['totalCost'] as num).toDouble(),
-              status: data['status'],
-              paymentMethod: data['paymentMethod'],
-              deliveryLocation:
-                  data['deliveryLocation'] is GeoPoint
-                      ? "${(data['deliveryLocation'] as GeoPoint).latitude}, ${(data['deliveryLocation'] as GeoPoint).longitude}"
-                      : (data['deliveryLocation'] ?? 'Unknown location'),
-              distance: (data['distance'] as num).toDouble(),
-            );
-          }).toList();
-      print(fetchedOrders);
-      setState(() {
-        orders = fetchedOrders;
-      });
-    } catch (e) {
-      print("Error fetching orders: $e");
-    }
-  }
-
-  Future<void> _getCurrentLocation() async {
-    try {
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.deniedForever) {
-          setState(() {
-            currentLocation = "Location permission denied";
-          });
-          return;
-        }
-      }
-
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.bestForNavigation,
-      );
-
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-        position.latitude,
-        position.longitude,
-      );
-
-      Placemark place = placemarks[0];
-      setState(() {
-        currentLocation =
-            "${place.street}, ${place.subLocality}, ${place.locality}, ${place.administrativeArea}, ${place.country}";
-      });
-    } catch (e) {
-      setState(() {
-        currentLocation = "Failed to get location";
-      });
-    }
-  }
+  List<Order> orders = List.from(dummyOrders);
 
   void updateOrderStatus(String orderId, String newStatus) {
     setState(() {
@@ -116,9 +31,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    List<myOrder.Order> acceptedOrders =
+    List<Order> acceptedOrders =
         orders.where((order) => order.status == "active").toList();
-    List<myOrder.Order> pendingOrders =
+    List<Order> pendingOrders =
         orders.where((order) => order.status != "active").toList();
 
     return Scaffold(
@@ -143,27 +58,25 @@ class _OrdersScreenState extends State<OrdersScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Icon(Icons.location_on_rounded, color: const Color(0xFFFF460A)),
                 const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Current Location', style: GoogleFonts.inter()),
-                      Text(
-                        currentLocation,
-                        style: GoogleFonts.inter(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        softWrap: true,
-                        overflow: TextOverflow.visible,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Current Location', style: GoogleFonts.inter()),
+                    Text(
+                      'Sri Eshwar College, Coimbatore',
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
+                const Spacer(),
                 Icon(Icons.notifications_outlined, color: Colors.black),
               ],
             ),
@@ -230,39 +143,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (orders.isEmpty) ...[
-                      Text(
-                        'No orders found',
-                        style: GoogleFonts.inter(
-                          fontSize: 16,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ] else ...[
-                      if (acceptedOrders.isNotEmpty) ...[
-                        GridView.builder(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                childAspectRatio: 1.5,
-                                crossAxisSpacing: 20,
-                                mainAxisSpacing: 20,
-                              ),
-                          itemCount: acceptedOrders.length,
-                          itemBuilder: (context, index) {
-                            final order = acceptedOrders[index];
-                            return OrderCard(
-                              order: order,
-                              onOrderAccept: updateOrderStatus,
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        const Divider(color: Colors.white),
-                      ],
-
+                    if (acceptedOrders.isNotEmpty) ...[
                       GridView.builder(
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),
@@ -272,16 +153,37 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           crossAxisSpacing: 20,
                           mainAxisSpacing: 20,
                         ),
-                        itemCount: pendingOrders.length,
+                        itemCount: acceptedOrders.length,
                         itemBuilder: (context, index) {
-                          final order = pendingOrders[index];
+                          final order = acceptedOrders[index];
                           return OrderCard(
                             order: order,
                             onOrderAccept: updateOrderStatus,
                           );
                         },
                       ),
+                      const SizedBox(height: 20),
+                      const Divider(color: Colors.white),
                     ],
+
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 1.5,
+                        crossAxisSpacing: 20,
+                        mainAxisSpacing: 20,
+                      ),
+                      itemCount: pendingOrders.length,
+                      itemBuilder: (context, index) {
+                        final order = pendingOrders[index];
+                        return OrderCard(
+                          order: order,
+                          onOrderAccept: updateOrderStatus,
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -289,7 +191,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
           ),
         ],
       ),
-
       bottomNavigationBar: BottomNavBar(
         currentIndex: 0,
         onTap: (currentIndex) {
