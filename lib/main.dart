@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'screens/payment_screen.dart';
-import 'screens/profile_screen.dart';
-import 'widgets/bottom_navbar.dart';
-import 'screens/orders_screen.dart';
-import 'screens/opening_screen.dart';
+import 'package:project_flutter/screens/signin_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:project_flutter/screens/opening_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,12 +32,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final List<Widget> _screens = [
-    const OrdersScreen(),
-    const PaymentScreen(),
-    ProfileScreen(),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return const Scaffold(body: OpeningScreen());

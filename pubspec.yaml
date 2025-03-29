@@ -15,6 +15,13 @@ dependencies:
   intl: ^0.20.2
   firebase_core: ^3.12.1
   cloud_firestore: ^5.6.5
+  flutter_map: ^8.1.1
+  url_launcher: ^6.3.1
+  geocoding: ^3.0.0
+  geolocator: ^13.0.3
+  intl_phone_field: ^3.2.0
+  shared_preferences: ^2.5.3
+  firebase_auth: ^5.5.1
 
 dev_dependencies:
   flutter_test:
@@ -24,6 +31,13 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
+indexes:
+- collection: transaction
+  fields:
+  - name: partnerId
+    order: ASCENDING
+  - name: date
+    order: DESCENDING
 #  assets:
 #
 #  fonts:

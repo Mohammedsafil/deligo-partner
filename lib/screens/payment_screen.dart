@@ -9,173 +9,166 @@ import './withdrawal_screen.dart';
 import './profile_screen.dart';
 
 class PaymentScreen extends StatefulWidget {
-  const PaymentScreen({super.key});
+  final String partnerId;
+  const PaymentScreen({super.key, required this.partnerId});
 
   @override
   State<PaymentScreen> createState() => _PaymentScreenState();
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
-  final String partnerId = "partnerId1";
+  late String partnerId = widget.partnerId;
   late Stream<DocumentSnapshot> _paymentStream;
   late CollectionReference<Map<String, dynamic>> _transactionStream;
   final FirestoreService _firestoreService = FirestoreService();
+  // final String partnerTranId = "+91 9789378657";
 
   @override
   void initState() {
     super.initState();
-    _paymentStream = _firestoreService.getProfileStream(partnerId);
+    // _paymentStream = _firestoreService.getProfileStream(partnerId);
     _transactionStream = FirebaseFirestore.instance.collection('transaction');
   }
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<DocumentSnapshot>(
-      stream: _paymentStream,
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Center(
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: Text(
+          'Earnings',
+          style: GoogleFonts.pacifico(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 30,
+          ),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 20),
             child: Text(
-              'Error: ${snapshot.error}',
-              style: const TextStyle(color: Colors.red),
+              "Deligo",
+              style: GoogleFonts.pacifico(fontSize: 32, color: Colors.white),
             ),
-          );
-        }
+          ),
+        ],
+        backgroundColor: const Color(0xFFFF4B3A),
+        elevation: 0,
+      ),
+      body: Column(
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              children: [_buildEarningsSummary(), _buildTransactionsList()],
+            ),
+          ),
+          const SizedBox(height: 120),
+          // _buildWithDrawSection(),
+        ],
+      ),
 
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-
-        if (!snapshot.hasData || !snapshot.data!.exists) {
-          return Scaffold(
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('Payment data not found'),
-                  const SizedBox(height: 16),
-                ],
+      bottomNavigationBar: BottomNavBar(
+        currentIndex: 1,
+        onTap: (currentIndex) {
+          if (currentIndex == 0) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => OrdersScreen(partnerId: partnerId),
               ),
-            ),
-          );
-        }
-
-        try {
-          final paymentData = snapshot.data!.data() as Map<String, dynamic>;
-
-          final totalEarnings = paymentData['earnings'] as Map<String, dynamic>;
-
-          // final transactions =
-          //     paymentData['transactions'] as Map<String, dynamic>;
-
-          return Scaffold(
-            appBar: AppBar(
-              automaticallyImplyLeading: false,
-              title: Text(
-                'Earnings',
-                style: GoogleFonts.pacifico(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 30,
-                ),
+            );
+          } else if (currentIndex == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => ProfileScreen(partnerId: widget.partnerId),
               ),
-              actions: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 20),
-                  child: Text(
-                    "Deligo",
-                    style: GoogleFonts.pacifico(
-                      fontSize: 32,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-              backgroundColor: const Color(0xFFFF4B3A),
-              elevation: 0,
-            ),
-            body: Column(
-              children: [
-                SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      _buildEarningsSummary(
-                        NumberFormat.decimalPattern(
-                          'en_IN',
-                        ).format(totalEarnings['totalearnings']),
-                      ),
-                      _buildTransactionsList(),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 120),
-                // _buildWithDrawSection(),
-              ],
-            ),
-
-            bottomNavigationBar: BottomNavBar(
-              currentIndex: 1,
-              onTap: (currentIndex) {
-                if (currentIndex == 0) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const OrdersScreen(),
-                    ),
-                  );
-                } else if (currentIndex == 2) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ProfileScreen()),
-                  );
-                }
-              },
-            ),
-          );
-        } catch (e) {
-          return Scaffold(body: Center(child: Text('Error: $e')));
-        }
-      },
+            );
+          }
+        },
+      ),
     );
   }
 
-  Widget _buildEarningsSummary(String totalEarnings) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFFFF4B3A), Color(0xFFFF8329)],
-        ),
-      ),
-      child: Column(
-        children: [
-          Text(
-            '₹ ${totalEarnings}',
-            style: GoogleFonts.lato(
-              fontSize: 56,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+  Widget _buildEarningsSummary() {
+    DateTime now = DateTime.now();
+    DateTime startOfDay = DateTime(now.year, now.month, now.day);
+    DateTime endOfDay = DateTime(now.year, now.month, now.day + 1);
+    return StreamBuilder<QuerySnapshot>(
+      stream:
+          _transactionStream
+              .where('partnerId', isEqualTo: partnerId)
+              .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (snapshot.hasError) {
+          return Center(child: Text("Error: ${snapshot.error}"));
+        }
+
+        // if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+        //   return const Center(child: Text("No transactions found"));
+        // }
+
+        double totalEarnings = 0;
+        if (snapshot.data!.docs.isNotEmpty) {
+          totalEarnings = snapshot.data!.docs.fold(0.0, (sum, doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            if (data['date'] is Timestamp) {
+              DateTime transactionDate = (data['date'] as Timestamp).toDate();
+
+              // Check if the transaction date falls within today
+              if (transactionDate.isAfter(startOfDay) &&
+                  transactionDate.isBefore(endOfDay)) {
+                double amount = (data['amount'] ?? 0).toDouble();
+                return sum + amount;
+              }
+            }
+            return sum;
+          });
+        }
+        // List<String> transactionIds =
+        //     snapshot.data!.docs.map((doc) => doc.id).toList();
+
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFFFF4B3A), Color(0xFFFF8329)],
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Total Earnings',
-            style: GoogleFonts.lato(fontSize: 26, color: Colors.white70),
-          ),
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+          child: Column(
             children: [
-              // _buildEarningsCard('Today', '₹ 850', '5 deliveries'),
-              // _buildEarningsCard('This Week', '₹ 5,250', '32 deliveries'),
+              Text(
+                '₹ ${totalEarnings.toStringAsFixed(2)}', // Ensure 2 decimal places
+                style: GoogleFonts.lato(
+                  fontSize: 56,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Today\'s Earnings',
+                style: GoogleFonts.lato(fontSize: 26, color: Colors.white70),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  // _buildEarningsCard('Today', '₹ 850', '5 deliveries'),
+                  // _buildEarningsCard('This Week', '₹ 5,250', '32 deliveries'),
+                ],
+              ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -212,8 +205,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
   // }
 
   Widget _buildTransactionsList() {
+    DateTime now = DateTime.now();
+    print(now);
+    DateTime startOfDay = DateTime(now.year, now.month, now.day);
+    DateTime endOfDay = DateTime(now.year, now.month, now.day + 1);
     return StreamBuilder<QuerySnapshot>(
-      stream: _transactionStream.snapshots(),
+      stream:
+          _transactionStream
+              .where('partnerId', isEqualTo: partnerId)
+              .snapshots(),
+
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -223,21 +224,31 @@ class _PaymentScreenState extends State<PaymentScreen> {
           return Center(child: Text("Error: ${snapshot.error}"));
         }
 
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return const Center(child: Text("No transactions found"));
+        // if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+        //   return const Center(child: Text("No transactions found"));
+        // }
+
+        // final transactions = snapshot.data!.docs;
+        List<QueryDocumentSnapshot> todayTransactions = [];
+        List<String> transactionIds = [];
+        if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+          transactionIds = snapshot.data!.docs.map((doc) => doc.id).toList();
+
+          todayTransactions =
+              snapshot.data!.docs.where((doc) {
+                DateTime docDate = (doc['date'] as Timestamp).toDate();
+                return docDate.year == now.year &&
+                    docDate.month == now.month &&
+                    docDate.day == now.day;
+              }).toList();
         }
-
-        final transactions = snapshot.data!.docs;
-        List<String> transactionIds =
-            snapshot.data!.docs.map((doc) => doc.id).toList();
-
         return ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: transactions.length,
+          itemCount: todayTransactions.length,
           itemBuilder: (context, index) {
             final transaction =
-                transactions[index].data() as Map<String, dynamic>;
+                todayTransactions[index].data() as Map<String, dynamic>;
 
             DateTime dateTime;
             if (transaction['date'] is Timestamp) {
@@ -254,7 +265,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             return _buildTransactionCard(
               date: formattedDate,
               time: formatedTime,
-              orderNumber: transactionIds[index].toString(),
+              orderNumber: transaction['orderNumber'].toString(),
               amount: '₹ ${transaction['amount'].toString() ?? '0'}',
               type: transaction['type'].toString() ?? 'Payment',
             );
@@ -295,7 +306,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              type == 'Cash' ? Icons.money : Icons.payment,
+              type == 'cash' ? Icons.money : Icons.payment,
               color: const Color(0xFFFF4B3A),
             ),
           ),
@@ -338,7 +349,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color:
-                      type == 'Cash'
+                      type == 'cash'
                           ? Colors.green.withOpacity(0.1)
                           : Colors.blue.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
@@ -346,7 +357,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 child: Text(
                   type,
                   style: GoogleFonts.lato(
-                    color: type == 'Cash' ? Colors.green : Colors.blue,
+                    color: type == 'cash' ? Colors.green : Colors.blue,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),

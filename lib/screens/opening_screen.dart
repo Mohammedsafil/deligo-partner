@@ -1,9 +1,20 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:project_flutter/screens/signin_page.dart';
 import 'orders_screen.dart';
+import '../models/partner_profile.dart';
 
-class OpeningScreen extends StatelessWidget {
+class OpeningScreen extends StatefulWidget {
   const OpeningScreen({super.key});
+
+  @override
+  State<OpeningScreen> createState() => _OpeningScreenState();
+}
+
+class _OpeningScreenState extends State<OpeningScreen> {
+
+  final FirestoreService _firestoreService = FirestoreService();
 
   @override
   Widget build(BuildContext context) {
@@ -39,13 +50,18 @@ class OpeningScreen extends StatelessWidget {
                     vertical: 15,
                   ),
                 ),
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const OrdersScreen(),
-                    ),
-                  );
+                onPressed: () async {
+                  String check = await _firestoreService.checkLogin();
+                  if(check.isNotEmpty){
+                    Navigator.push(context, 
+                      MaterialPageRoute(builder: (context)=> OrdersScreen(partnerId: check))
+                    );
+                  }
+                  else{
+                    Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => SignInScreen())
+                    );
+                  }
                 },
                 child: Text(
                   'Get Started',

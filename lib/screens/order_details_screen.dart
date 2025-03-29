@@ -2,7 +2,10 @@ import "package:flutter/material.dart";
 import "package:intl/intl.dart";
 import "package:google_fonts/google_fonts.dart";
 import "package:project_flutter/models/order.dart";
+import "package:project_flutter/screens/map_screen.dart";
+import "package:project_flutter/screens/message_screen.dart";
 import "package:project_flutter/widgets/bottom_navbar.dart";
+import 'package:url_launcher/url_launcher.dart';
 import "./profile_screen.dart";
 import "./payment_screen.dart";
 
@@ -10,8 +13,9 @@ class OrderDetailsScreen extends StatefulWidget {
   const OrderDetailsScreen({
     super.key,
     required this.order,
-    required this.onAcceptOrder,
+    required this.onAcceptOrder, required this.partnerId,
   });
+  final String partnerId;
   final Order order;
   final Function onAcceptOrder;
 
@@ -57,6 +61,23 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                     size: 30,
                   ),
                 ),
+                const Spacer(),
+                if (widget.order.status != 'delivered' &&
+                    widget.order.status != 'pickup') ...[
+                  IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) =>
+                                  MessageScreen(orderId: widget.order.id),
+                        ),
+                      );
+                    },
+                    icon: Icon(Icons.edit, color: Colors.black, size: 30),
+                  ),
+                ],
               ],
             ),
           ),
@@ -147,14 +168,14 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            '${item.name}',
+                                            '${item['item']}',
                                             style: GoogleFonts.inter(
                                               fontSize: 14,
                                               color: Colors.black,
                                             ),
                                           ),
                                           Text(
-                                            'Quantity: ${item.quantity}',
+                                            'Quantity: ${item['quantity']}',
                                             style: GoogleFonts.inter(
                                               fontSize: 14,
                                               color: Colors.grey,
@@ -239,7 +260,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                           ),
                         ),
                       ),
-
                       const SizedBox(height: 20),
                       Row(
                         children: [
@@ -257,7 +277,14 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                               ),
                             ),
                             child: IconButton(
-                              onPressed: null,
+                              onPressed: () async {
+                                final phoneNumber = widget.order.mobile;
+                                final Uri launchUri = Uri(
+                                  scheme: 'tel',
+                                  path: phoneNumber,
+                                );
+                                await launchUrl(launchUri);
+                              },
                               icon: Icon(Icons.call, color: Colors.white),
                             ),
                           ),
@@ -275,7 +302,37 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                               ),
                             ),
                             child: IconButton(
-                              onPressed: null,
+                              onPressed: () {
+                                try {
+                                  List<String> coordinates = widget
+                                      .order
+                                      .deliveryLocation
+                                      .split(', ');
+                                  double latitude = double.parse(
+                                    coordinates[0],
+                                  );
+                                  double longitude = double.parse(
+                                    coordinates[1],
+                                  );
+
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => MapScreen(
+                                            latitude: latitude,
+                                            longitude: longitude,
+                                          ),
+                                    ),
+                                  );
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("Invalid location format"),
+                                    ),
+                                  );
+                                }
+                              },
                               icon: Icon(
                                 Icons.location_pin,
                                 color: Colors.white,
@@ -293,79 +350,206 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
           ),
           Column(
             children: [
-              Text(
-                'Will you accept the Order?',
-                style: GoogleFonts.inter(fontSize: 16),
-              ),
-              const SizedBox(height: 20),
-              if (widget.order.status.toLowerCase() == 'pickup') ...[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(
-                          Colors.white,
-                        ),
-                        side: MaterialStateProperty.all(
-                          const BorderSide(color: Color(0xFFFF460A), width: 2),
-                        ),
-                      ),
-                      onPressed: null,
-                      child: Text(
-                        'Decline',
-                        style: GoogleFonts.inter(
-                          color: const Color(0xFFFF460A),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    ElevatedButton(
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(
-                          const Color(0xFFFF460A),
-                        ),
-                      ),
-                      onPressed: () {
-                        widget.onAcceptOrder(widget.order.id, "active");
-                        Navigator.pop(context);
-                      },
-                      child: Text(
-                        'Accept',
-                        style: GoogleFonts.inter(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
+              if (widget.order.status == "delivered") ...[
+                Text(
+                  'Delivered Successfully!',
+                  style: GoogleFonts.inter(
+                    fontSize: 18,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ] else if (widget.order.status.toLowerCase() == 'active') ...[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(
-                          Colors.white,
+              ] else ...[
+                if (widget.order.status == "pickup") ...[
+                  Text(
+                    'Will you accept the Order?',
+                    style: GoogleFonts.inter(fontSize: 16),
+                  ),
+                ],
+                const SizedBox(height: 20),
+                if (widget.order.status.toLowerCase() == 'pickup') ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(
+                            Colors.white,
+                          ),
+                          side: MaterialStateProperty.all(
+                            const BorderSide(
+                              color: Color(0xFFFF460A),
+                              width: 2,
+                            ),
+                          ),
                         ),
-                        side: MaterialStateProperty.all(
-                          const BorderSide(color: Color(0xFFFF460A), width: 2),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          'Decline',
+                          style: GoogleFonts.inter(
+                            color: const Color(0xFFFF460A),
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                      onPressed: null,
-                      child: Text(
-                        'Update Status',
-                        style: GoogleFonts.inter(
-                          color: const Color(0xFFFF460A),
-                          fontWeight: FontWeight.bold,
+                      const SizedBox(width: 20),
+                      ElevatedButton(
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(
+                            const Color(0xFFFF460A),
+                          ),
+                        ),
+                        onPressed: () async {
+                          await widget.onAcceptOrder(widget.order.id, "active");
+                        },
+                        child: Text(
+                          'Accept',
+                          style: GoogleFonts.inter(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 20),
-                  ],
-                ),
+                    ],
+                  ),
+                ] else if (widget.order.status.toLowerCase() == 'active') ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(
+                            Colors.white,
+                          ),
+                          side: MaterialStateProperty.all(
+                            const BorderSide(
+                              color: Color(0xFFFF460A),
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                        onPressed: () async {
+                          await widget.onAcceptOrder(
+                            widget.order.id,
+                            "reached restaurant",
+                          );
+                        },
+                        child: Text(
+                          'Reached Restaurant',
+                          style: GoogleFonts.inter(
+                            color: const Color(0xFFFF460A),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                    ],
+                  ),
+                ] else if (widget.order.status.toLowerCase() ==
+                    'reached restaurant') ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(
+                            Colors.white,
+                          ),
+                          side: MaterialStateProperty.all(
+                            const BorderSide(
+                              color: Color(0xFFFF460A),
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                        onPressed: () async {
+                          await widget.onAcceptOrder(
+                            widget.order.id,
+                            "picked up from restaurant",
+                          );
+                        },
+                        child: Text(
+                          'Picked up from Restaurant',
+                          style: GoogleFonts.inter(
+                            color: const Color(0xFFFF460A),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                    ],
+                  ),
+                ] else if (widget.order.status.toLowerCase() ==
+                    'picked up from restaurant') ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(
+                            Colors.white,
+                          ),
+                          side: MaterialStateProperty.all(
+                            const BorderSide(
+                              color: Color(0xFFFF460A),
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                        onPressed: () async {
+                          await widget.onAcceptOrder(
+                            widget.order.id,
+                            "reached delivery location",
+                          );
+                        },
+                        child: Text(
+                          'Reached Delivery Location',
+                          style: GoogleFonts.inter(
+                            color: const Color(0xFFFF460A),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                    ],
+                  ),
+                ] else if (widget.order.status.toLowerCase() ==
+                    'reached delivery location') ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(
+                            Colors.white,
+                          ),
+                          side: MaterialStateProperty.all(
+                            const BorderSide(
+                              color: Color(0xFFFF460A),
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                        onPressed: () async {
+                          await widget.onAcceptOrder(
+                            widget.order.id,
+                            "delivered",
+                          );
+                        },
+                        child: Text(
+                          'Delivered',
+                          style: GoogleFonts.inter(
+                            color: const Color(0xFFFF460A),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                    ],
+                  ),
+                ],
               ],
             ],
           ),
@@ -378,12 +562,12 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
           if (currentIndex == 1) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const PaymentScreen()),
+              MaterialPageRoute(builder: (context) =>  PaymentScreen(partnerId: widget.partnerId,)),
             );
           } else if (currentIndex == 2) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => ProfileScreen()),
+              MaterialPageRoute(builder: (context) =>  ProfileScreen(partnerId: widget.partnerId,)),
             );
           }
         },

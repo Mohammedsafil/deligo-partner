@@ -80,17 +80,17 @@ class _WithdrawalScreenState extends State<WithdrawalScreen> {
       bottomNavigationBar: BottomNavBar(
         currentIndex: 1,
         onTap: (index) {
-          if (index == 0) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const OrdersScreen()),
-            );
-          } else if (index == 2) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) =>  ProfileScreen()),
-            );
-          }
+          // if (index == 0) {
+          //   Navigator.push(
+          //     context,
+          //     MaterialPageRoute(builder: (context) => OrdersScreen()),
+          //   );
+          // } else if (index == 2) {
+          //   Navigator.push(
+          //     context,
+          //     MaterialPageRoute(builder: (context) =>  ProfileScreen()),
+          //   );
+          // }
         },
       ),
     );
@@ -592,12 +592,12 @@ class _WithdrawalScreenState extends State<WithdrawalScreen> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const OrdersScreen(),
-                          ),
-                        );
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     // builder: (context) => OrdersScreen(),
+                        //   ),
+                        // );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFF4B3A),

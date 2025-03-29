@@ -23,6 +23,7 @@ class OrderCard extends StatelessWidget {
                 (context) => OrderDetailsScreen(
                   order: order,
                   onAcceptOrder: onOrderAccept,
+                  partnerId: '9',
                 ),
           ),
         );

@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:project_flutter/screens/signin_page.dart';
 import '../widgets/bottom_navbar.dart';
 import './payment_screen.dart';
 import './orders_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/partner_profile.dart';
+import '../screens/support/sos.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final String partnerId = "partnerId1";
+  // final String partnerId = "partnerId1";
+  final String partnerId;
 
-  const ProfileScreen({super.key});
+  const ProfileScreen({super.key, required this.partnerId});
 
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
@@ -93,6 +96,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           print(deliveryStats['deliveries']);
           print(deliveryStats['on_time_percentage']);
           print(deliveryStats['rating']);
+          print(deliveryStats);
 
           return Scaffold(
             appBar: AppBar(
@@ -107,9 +111,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
               elevation: 0,
               actions: [
                 IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.white),
+                  icon: const Icon(Icons.logout, color: Colors.white),
                   onPressed: () {
                     // TODO: Implement edit profile
+                    _firestoreService.logout();
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SignInScreen(),
+                      ),
+                    );
                   },
                 ),
               ],
@@ -143,14 +154,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const PaymentScreen(),
+                      builder:
+                          (context) =>
+                              PaymentScreen(partnerId: widget.partnerId),
                     ),
                   );
                 } else if (currentIndex == 0) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const OrdersScreen(),
+                      builder:
+                          (context) =>
+                              OrdersScreen(partnerId: widget.partnerId),
                     ),
                   );
                 }
@@ -229,13 +244,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      'ID: ${profileData['id']}',
-                      style: GoogleFonts.lato(
-                        fontSize: 16,
-                        color: Colors.white70,
-                      ),
-                    ),
+                    // Text(
+                    //   'ID: ${profileData['id']}',
+                    //   style: GoogleFonts.lato(
+                    //     fontSize: 16,
+                    //     color: Colors.white70,
+                    //   ),
+                    // ),
                     const SizedBox(height: 8),
                     Row(
                       children: [
@@ -478,36 +493,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildSOSSection() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFF4B3A),
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 2,
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Text(
-            'SOS',
-            style: GoogleFonts.lato(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildSOSSection() {
+  //   return Container(
+  //     padding: const EdgeInsets.all(20),
+  //     decoration: BoxDecoration(
+  //       color: const Color(0xFFFF4B3A),
+  //       borderRadius: BorderRadius.circular(10),
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: Colors.grey.withOpacity(0.1),
+  //           spreadRadius: 2,
+  //           blurRadius: 8,
+  //           offset: const Offset(0, 2),
+  //         ),
+  //       ],
+  //     ),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.end,
+  //       children: [
+  //         Text(
+  //           'SOS',
+  //           style: GoogleFonts.lato(
+  //             fontSize: 18,
+  //             fontWeight: FontWeight.bold,
+  //             color: Colors.white,
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildSupportSection() {
     return Container(
@@ -536,14 +551,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              _buildFAQSection(),
-              const SizedBox(width: 40),
-              _buildHelpSection(),
-              const SizedBox(width: 40),
-              _buildSOSSection(),
-            ],
+          IntrinsicHeight(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Flexible(child: _buildFAQSection()),
+                // const SizedBox(width: 40),
+                Flexible(child: _buildHelpSection()),
+                // const SizedBox(width: 40),
+                Flexible(child: SosBuilder()),
+              ],
+            ),
           ),
         ],
       ),
